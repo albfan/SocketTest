@@ -7,7 +7,6 @@ import javax.swing.border.*;
 
 import java.io.*;
 
-import net.sf.sockettest.*;
 import net.sf.sockettest.controller.SocketTestClientController;
 
 /**
@@ -32,8 +31,8 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
     private JLabel portLabel = new JLabel("Port");
     private JLabel logoLabel = new JLabel("SocketTest v 3.0", logo,
             JLabel.CENTER);
-    private JTextField ipField = new JTextField("127.0.0.1",20);
-    private JTextField portField = new JTextField("21",10);
+    private JTextField ipField = new JTextField(20);
+    private JTextField portField = new JTextField(10);
     private JButton portButton = new JButton("Port");
     private JButton connectButton = new JButton("Connect");
     
@@ -57,7 +56,17 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
 
     public SocketTestClient() {
         buildGUI();
-        showConectionInfo("NONE");
+        setIp("127.0.0.1");
+        setPort("21");
+        showConnectionInfo("NONE");
+    }
+
+    private void setPort(String port) {
+        portField.setText(port);
+    }
+
+    private void setIp(String ip) {
+        ipField.setText(ip);
     }
 
     public void setController(SocketTestClientController controller) {
@@ -169,6 +178,11 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
         JScrollPane jsp = new JScrollPane(messagesField);
         textPanel.add(jsp);
         textPanel.setBorder(BorderFactory.createEmptyBorder(3,3,0,3));
+        hexOutputCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                controller.getModel().setHexOutput(hexOutputCheckBox.isSelected());
+            }
+        });
         textPanel.add(hexOutputCheckBox, BorderLayout.SOUTH);
 
         sendPanel = new JPanel();
@@ -195,8 +209,9 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
         ActionListener sendListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String text = sendField.getText();
-                boolean hexInput = hexInputCheckBox.isSelected();
-                controller.buildMessage(text, hexInput);
+                boolean hexInput = controller.getModel().isHexInput();
+                boolean hexOutput = controller.getModel().isHexOutput();
+                controller.buildMessage(text, hexInput, hexOutput);
             }
         };
         sendButton.addActionListener(sendListener);
@@ -209,6 +224,11 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
 
         gbc.gridx = 1;
         gbc.gridy = 1;
+        hexInputCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                controller.getModel().setHexInput(hexInputCheckBox.isSelected());
+            }
+        });
         sendPanel.add(hexInputCheckBox, gbc);
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridBagLayout());
@@ -275,14 +295,6 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
             fileName = chooser.getSelectedFile().getAbsolutePath();
         }
         return fileName;
-    }
-
-    public void saveText(String text, String fileName) {
-        try {
-            Util.writeFile(fileName, text);
-        } catch (Exception ioe) {
-            error(""+ioe.getMessage(), "Error saving to file..");
-        }
     }
 
     public String getMessages() {
@@ -353,7 +365,7 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
-    public void showConectionInfo(String ip) {
+    public void showConnectionInfo(String ip) {
         connectedBorder = BorderFactory.createTitledBorder(
                 new EtchedBorder(), "Connected To < "+ip+" >");
         CompoundBorder cb=new CompoundBorder(
@@ -365,7 +377,7 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
     }
 
     public void disconnected() {
-        showConectionInfo("NONE");
+        showConnectionInfo("NONE");
         ipField.setEditable(true);
         portField.setEditable(true);
         connectButton.setText("Connect");
@@ -373,10 +385,6 @@ public class SocketTestClient extends JPanel implements SocketTestClientView {
         connectButton.setToolTipText("Start Connection");
         sendButton.setEnabled(false);
         sendField.setEditable(false);
-    }
-
-    public boolean isHexOutput() {
-        return hexOutputCheckBox.isSelected();
     }
 
     public void appendMessage(String message) {

@@ -1,9 +1,11 @@
 package net.sf.sockettest.swing;
 
 public interface SocketTestServerView extends AskView {
-    String chooseFile();
+    String getMessages();
 
-    boolean isHexInput();
+    void clearMessages();
+
+    String chooseFile();
 
     void focusOnPort();
 
@@ -16,7 +18,6 @@ public interface SocketTestServerView extends AskView {
     void startWaitInfo();
 
     void appendMessage(String msg);
-
     void stopped();
 
     void showConnectionInfo(String ip);
@@ -24,6 +25,4 @@ public interface SocketTestServerView extends AskView {
     void socketSet(boolean set);
 
     void resetSendField();
-
-    boolean isHexOutput();
 }

@@ -75,7 +75,7 @@ public class SocketClient extends Thread {
                     controller.disconnect();
                     break;
                 }
-                if(view.isHexOutput()) {
+                if(controller.getModel().isHexOutput()) {
                     got = DatatypeConverter.printHexBinary(got.getBytes());
                 }
                 view.appendMessage(got);

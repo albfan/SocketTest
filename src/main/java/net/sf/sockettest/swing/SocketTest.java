@@ -1,14 +1,13 @@
-package net.sf.sockettest;
+package net.sf.sockettest.swing;
 
 import java.awt.*;
 import javax.swing.*;
 
+import net.sf.sockettest.SocketTestServerController;
+import net.sf.sockettest.Util;
 import net.sf.sockettest.controller.SocketTestClientController;
-import net.sf.sockettest.swing.About;
-import net.sf.sockettest.swing.SocketTestClient;
-import net.sf.sockettest.swing.SocketTestServer;
-import net.sf.sockettest.swing.SocketTestUdp;
-import net.sf.sockettest.swing.SplashScreen;
+import net.sf.sockettest.model.SocketTestClientModel;
+import net.sf.sockettest.model.SocketTestServerModel;
 
 /**
  *
@@ -28,9 +27,15 @@ public class SocketTest extends JFrame {
 
         tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         SocketTestClient client = new SocketTestClient().setParent(this);
-        client.setController(new SocketTestClientController());
+        SocketTestClientController controller = new SocketTestClientController();
+        SocketTestClientModel model = new SocketTestClientModel();
+        controller.setModel(model);
+        client.setController(controller);
         SocketTestServer server = new SocketTestServer().setParent(this);
-        server.setController(new SocketTextServerController());
+        SocketTestServerController controllerServer = new SocketTestServerController();
+        SocketTestServerModel modelServer = new SocketTestServerModel();
+        controllerServer.setModel(modelServer);
+        server.setController(controllerServer);
         SocketTestUdp udp = new SocketTestUdp().setParent(this);
         About about = new About();
         

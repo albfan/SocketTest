@@ -29,8 +29,8 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
     private JLabel ipLabel = new JLabel("IP Address");
     private JLabel portLabel = new JLabel("Port");
     private JLabel logoLabel = new JLabel("SocketTest v 3.0", logo, JLabel.CENTER);
-    private JTextField ipField = new JTextField("0.0.0.0",20);
-    private JTextField portField = new JTextField("21",10);
+    private JTextField ipField = new JTextField(20);
+    private JTextField portField = new JTextField(10);
     private JButton portButton = new JButton("Port");
     private JButton connectButton = new JButton("Start Listening");
 
@@ -52,10 +52,14 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
     private GridBagConstraints gbc = new GridBagConstraints();
     private JFrame parent;
 
-    private SocketTextServerController controller;
+    private SocketTestServerController controller;
 
     public SocketTestServer() {
         buildGUI();
+        controller.getModel().setIp("0.0.0.0");
+        controller.getModel().setPort(Integer.parseInt("21"));
+        setIp(controller.getModel().getIp());
+        setPort(String.valueOf(controller.getModel().getPort()));
         showConnectionInfo("NONE");
     }
 
@@ -102,7 +106,9 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         ActionListener connectListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                controller.connect(SocketTestServer.this.ipField.getText(), SocketTestServer.this.portField.getText());
+                controller.getModel().setIp(ipField.getText());
+                controller.getModel().setPort(Integer.parseInt(portField.getText()));
+                controller.connect(controller.getModel().getIp(), String.valueOf(controller.getModel().getPort()));
             }
         };
         portField.addActionListener(connectListener);
@@ -150,6 +156,11 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
         JScrollPane jsp = new JScrollPane(messagesField);
         textPanel.add(jsp);
         textPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 0, 3));
+        hexOutputCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                controller.getModel().setHexInput(hexOutputCheckBox.isSelected());
+            }
+        });
         textPanel.add(hexOutputCheckBox, BorderLayout.SOUTH);
 
         sendPanel = new JPanel();
@@ -175,7 +186,7 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
         sendButton.setToolTipText("Send text to client");
         ActionListener sendListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                controller.buildMessage(sendField.getText());
+                controller.buildMessage(sendField.getText(), controller.getModel().isHexInput(), controller.getModel().isHexOutput());
             }
         };
         sendButton.addActionListener(sendListener);
@@ -192,6 +203,11 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
         sendPanel.add(disconnectButton, gbc);
         gbc.gridx = 1;
         gbc.gridy = 1;
+        hexInputCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                controller.getModel().setHexInput(hexInputCheckBox.isSelected());
+            }
+        });
         sendPanel.add(hexInputCheckBox, gbc);
 
         sendPanel.setBorder(
@@ -219,7 +235,7 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
         saveButton.setMnemonic('S');
         ActionListener saveListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                controller.saveFile(messagesField.getText());
+                controller.saveFile(getMessages());
             }
         };
         saveButton.addActionListener(saveListener);
@@ -229,7 +245,7 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
         clearButton.setMnemonic('C');
         ActionListener clearListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                messagesField.setText("");
+                clearMessages();
             }
         };
         clearButton.addActionListener(clearListener);
@@ -252,6 +268,16 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
     }
 
     @Override
+    public String getMessages() {
+        return messagesField.getText();
+    }
+
+    @Override
+    public void clearMessages() {
+        messagesField.setText("");
+    }
+
+    @Override
     public String chooseFile() {
         String fileName = null;
         JFileChooser chooser = new JFileChooser();
@@ -270,11 +296,6 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
                 title,
                 JOptionPane.YES_NO_OPTION);
         return value == option;
-    }
-
-    @Override
-    public boolean isHexInput() {
-        return hexInputCheckBox.isSelected();
     }
 
     public SocketTestServer setParent(JFrame parent) {
@@ -346,15 +367,11 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
     @Override
     public void appendMessage(String msg) {
         messagesField.append(msg+NEW_LINE);
-        messagesField.setCaretPosition(messagesField.getText().length());
+        messagesField.setCaretPosition(getMessages().length());
     }
 
     public void resetSendField() {
         sendField.setText("");
-    }
-
-    public boolean isHexOutput() {
-        return hexOutputCheckBox.isSelected();
     }
 
     public void showConnectionInfo(String ip) {
@@ -368,8 +385,25 @@ public class SocketTestServer extends JPanel implements SocketTestServerView {
         repaint();
     }
 
-    public void setController(SocketTextServerController controller) {
+    public void setController(SocketTestServerController controller) {
         this.controller = controller;
         controller.setView(this);
     }
+
+    public void setIp(String ip) {
+        this.ipField.setText(ip);
+    }
+
+    public String getIp() {
+        return this.ipField.getText();
+    }
+
+    public void setPort(String port) {
+        this.portField.setText(port);
+    }
+
+    public String getPort() {
+        return this.portField.getText();
+    }
+
 }

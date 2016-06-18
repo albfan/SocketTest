@@ -28,7 +28,7 @@
     </target>
 
 	<target name="run" depends="jar">		
-		<java classname="net.sf.sockettest.SocketTest" fork="true">
+		<java classname="net.sf.sockettest.swing.SocketTest" fork="true">
 		 <classpath>
 		   <pathelement location="dist/${app.name}.jar"/>
 		   <pathelement path="${java.class.path}"/>

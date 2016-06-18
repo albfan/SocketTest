@@ -16,5 +16,5 @@
     <jar href="SocketTest.jar" download="eager" main="false"/>
     <jar href="metouia.jar" download="eager" main="false"/>
   </resources>
-  <application-desc main-class="net.sf.sockettest.SocketTest" />
+  <application-desc main-class="net.sf.sockettest.swing.SocketTest" />
 </jnlp>

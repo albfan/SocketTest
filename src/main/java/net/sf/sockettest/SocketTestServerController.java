@@ -1,5 +1,6 @@
 package net.sf.sockettest;
 
+import net.sf.sockettest.model.SocketTestServerModel;
 import net.sf.sockettest.swing.SocketTestServerView;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -12,13 +13,14 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class SocketTextServerController {
+public class SocketTestServerController {
     private Socket socket;
     private ServerSocket server;
     private SocketServer socketServer;
     private PrintWriter out;
 
     private SocketTestServerView view;
+    private SocketTestServerModel model;
 
     public void setView(SocketTestServerView view) {
         this.view = view;
@@ -50,7 +52,7 @@ public class SocketTextServerController {
             return;
         }
         int portNo;
-        try	{
+        try {
             portNo=Integer.parseInt(port);
         } catch (Exception e) {
             view.error("Bad Port number. Please enter Port number",
@@ -79,14 +81,14 @@ public class SocketTextServerController {
         socketServer = SocketServer.handle(view, this, server);
     }
 
-    public void sendMessage(String s) {
+    public void sendMessage(String s, boolean hexOutput) {
         view.startWaitInfo();
         try	{
             if(out==null) {
                 out = new PrintWriter(new BufferedWriter(
                         new OutputStreamWriter(socket.getOutputStream())), true);
             }
-            if (view.isHexOutput()) {
+            if (hexOutput) {
                 view.appendMessage("S: " + DatatypeConverter.printHexBinary(s.getBytes()));
             } else {
                 view.appendMessage("S: " + s);
@@ -102,9 +104,9 @@ public class SocketTextServerController {
         }
     }
 
-    public void buildMessage(String text) {
+    public void buildMessage(String text, boolean hexInput, boolean hexOutput) {
         String msg;
-        if (view.isHexInput()) {
+        if (hexInput) {
             try {
                 msg = new String(DatatypeConverter.parseHexBinary(text));
             } catch (Exception ex) {
@@ -116,10 +118,10 @@ public class SocketTextServerController {
         }
 
         if(!msg.equals(""))
-            sendMessage(msg);
+            sendMessage(msg, hexOutput);
         else {
             if (view.confirm("Send Data To Client", "Send Blank Line ?", JOptionPane.YES_OPTION)) {
-                sendMessage(msg);
+                sendMessage(msg, hexOutput);
             }
         }
     }
@@ -170,5 +172,13 @@ public class SocketTextServerController {
                     " ["+socket.getInetAddress().getHostAddress()+"] ");
             view.socketSet(true);
         }
+    }
+
+    public void setModel(SocketTestServerModel model) {
+        this.model = model;
+    }
+
+    public SocketTestServerModel getModel() {
+        return model;
     }
 }

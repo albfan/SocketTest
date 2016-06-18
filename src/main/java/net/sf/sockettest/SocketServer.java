@@ -2,7 +2,7 @@ package net.sf.sockettest;
 
 import java.net.*;
 import java.io.*;
-import net.sf.sockettest.swing.SocketTestServer;
+
 import net.sf.sockettest.swing.SocketTestServerView;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -17,10 +17,10 @@ public class SocketServer extends Thread {
     private static SocketServer socketServer = null;
     private Socket socket = null;
     private final SocketTestServerView view;
-    private final SocketTextServerController controller;
+    private final SocketTestServerController controller;
     private ServerSocket server = null;
     private BufferedInputStream in;
-    private boolean desonnected=false;
+    private boolean desconnected =false;
     private boolean stop = false;
 
     public synchronized void setDesconnected(boolean cr) {
@@ -31,7 +31,7 @@ public class SocketServer extends Thread {
                 System.err.println("Error closing clinet : setDesconnected : "+e);
             }
         }
-        desonnected=cr;
+        desconnected =cr;
         //parent.setClientSocket(null);
     }
 
@@ -46,7 +46,7 @@ public class SocketServer extends Thread {
         }
     }
     
-    private SocketServer(SocketTestServerView view, SocketTextServerController controller, ServerSocket s) {
+    private SocketServer(SocketTestServerView view, SocketTestServerController controller, ServerSocket s) {
         super("SocketServer");
         this.view = view;
         this.controller = controller;
@@ -58,7 +58,7 @@ public class SocketServer extends Thread {
     
     
     
-    public static synchronized SocketServer handle(SocketTestServerView view, SocketTextServerController controller,
+    public static synchronized SocketServer handle(SocketTestServerView view, SocketTestServerController controller,
             ServerSocket s) {
         if(socketServer==null)
             socketServer=new SocketServer(view, controller, s);
@@ -125,7 +125,7 @@ public class SocketServer extends Thread {
                 rec = readInputStream(in);
             } catch (Exception e) {
                 setDesconnected(true);
-                if(!desonnected) {
+                if(!desconnected) {
                     view.error(e.getMessage(),"Lost Client conection");
                     view.appendMessage("> Server lost Client conection.");
                 } else
@@ -134,7 +134,7 @@ public class SocketServer extends Thread {
             }
             
             if (rec != null) {
-                if(view.isHexOutput()) {
+                if(controller.getModel().isHexOutput()) {
                     rec = DatatypeConverter.printHexBinary(rec.getBytes());
                 }
                 view.appendMessage(rec);

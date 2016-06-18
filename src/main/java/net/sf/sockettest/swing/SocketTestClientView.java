@@ -11,15 +11,13 @@ public interface SocketTestClientView extends AskView {
 
     void connected();
 
-    void showConectionInfo(String messagge);
+    void showConnectionInfo(String ip);
 
     void clearMessages();
 
     void focusSendField();
 
     void disconnected();
-
-    boolean isHexOutput();
 
     void appendMessage(String message);
 
@@ -28,6 +26,4 @@ public interface SocketTestClientView extends AskView {
     String getMessages();
 
     String chooseFile();
-
-    void saveText(String text, String fileName);
 }

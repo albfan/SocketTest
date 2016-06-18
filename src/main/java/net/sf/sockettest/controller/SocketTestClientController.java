@@ -3,6 +3,7 @@ package net.sf.sockettest.controller;
 import net.sf.sockettest.MyTrustManager;
 import net.sf.sockettest.SocketClient;
 import net.sf.sockettest.Util;
+import net.sf.sockettest.model.SocketTestClientModel;
 import net.sf.sockettest.swing.SocketTestClientView;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -26,6 +27,7 @@ public class SocketTestClientController {
     private PrintWriter out;
     private SocketClient socketClient;
     private SocketTestClientView view;
+    private SocketTestClientModel model;
 
     public SocketTestClientController() {
         secure = false;
@@ -98,7 +100,7 @@ public class SocketTestClientController {
             view.stopWaitInfo();
             return;
         }
-        view.showConectionInfo(" "+socket.getInetAddress().getHostName()+
+        view.showConnectionInfo(" "+socket.getInetAddress().getHostName()+
                 " ["+socket.getInetAddress().getHostAddress()+"] ");
         view.stopWaitInfo();
         view.clearMessages();
@@ -118,7 +120,7 @@ public class SocketTestClientController {
         view.disconnected();
     }
 
-    public void buildMessage(String text, boolean hexInput) {
+    public void buildMessage(String text, boolean hexInput, boolean hexOutput) {
         String msg;
         if (hexInput) {
             try {
@@ -131,22 +133,22 @@ public class SocketTestClientController {
             msg = StringEscapeUtils.unescapeJava(text);
         }
         if(!msg.equals(""))
-            sendMessage(msg);
+            sendMessage(msg, hexOutput);
         else {
             if (view.confirm("Send Data To Server", "Send Blank Line ?", JOptionPane.YES_OPTION)) {
-                sendMessage(msg);
+                sendMessage(msg, hexOutput);
             }
         }
     }
 
-    public void sendMessage(String s) {
+    public void sendMessage(String s, boolean hexOutput) {
         view.startWaitInfo();
         try {
             if(out==null) {
                 out = new PrintWriter(new BufferedWriter(
                         new OutputStreamWriter(socket.getOutputStream())), true);
             }
-            if (view.isHexOutput()) {
+            if (hexOutput) {
                 view.appendMessage("S: " + DatatypeConverter.printHexBinary(s.getBytes()));
             } else {
                 view.appendMessage("S: "+s);
@@ -170,7 +172,19 @@ public class SocketTestClientController {
         }
         String fileName = view.chooseFile();
         if (fileName != null) {
-            view.saveText(text, fileName);
+            try {
+                Util.writeFile(fileName, text);
+            } catch (Exception ioe) {
+                error(""+ioe.getMessage(), "Error saving to file..");
+            }
         }
+    }
+
+    public SocketTestClientModel getModel() {
+        return model;
+    }
+
+    public void setModel(SocketTestClientModel model) {
+        this.model = model;
     }
 }

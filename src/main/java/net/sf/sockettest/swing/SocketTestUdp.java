@@ -121,8 +121,8 @@ public class SocketTestUdp extends JPanel {
         portButton1.setToolTipText("View Standard Ports");
         ActionListener portButtonListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                PortDialog dia = new PortDialog(parent, PortDialog.UDP);
-                dia.show();
+                PortDialog dialog = new PortDialog(parent, PortDialog.UDP);
+                dialog.setVisible(true);
             }
         };
         portButton1.addActionListener(portButtonListener);
@@ -319,9 +319,6 @@ public class SocketTestUdp extends JPanel {
         return this;
     }
 
-    /////////////////////
-    //action & helper methods
-    /////////////////////
     private void listen() {
         if(server!=null) {
             stop();
